@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You need to see this 😳</title>
+<meta property="og:title" content="You need to see this 😳">
+<meta property="og:description" content="I can't believe someone caught this on camera...">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #0f0f0f; color: #f1f1f1; overflow: hidden;
+  }
+
+  /* ---------- Stage 1: the bait ---------- */
+  #bait {
+    min-height: 100%; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 24px 16px; gap: 18px;
+  }
+  .card { width: 100%; max-width: 720px; }
+  .player {
+    position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden;
+    background: #222; cursor: pointer;
+  }
+  .thumb {
+    position: absolute; inset: -20px; filter: blur(18px) saturate(1.3);
+    background:
+      radial-gradient(circle at 30% 40%, #e0a96d 0 14%, transparent 15%),
+      radial-gradient(circle at 62% 55%, #6d8ee0 0 18%, transparent 19%),
+      radial-gradient(circle at 75% 30%, #e06d8e 0 10%, transparent 11%),
+      linear-gradient(135deg, #3a2d1f, #1f2d3a 60%, #2a1f3a);
+  }
+  .badge {
+    position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,.7);
+    padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600;
+  }
+  .badge b { color: #ff4e45; }
+  .play {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 76px; height: 54px; border-radius: 14px; background: #ff0033;
+    display: grid; place-items: center; transition: transform .15s;
+    box-shadow: 0 6px 24px rgba(0,0,0,.5);
+  }
+  .player:hover .play { transform: translate(-50%, -50%) scale(1.08); }
+  .play::after {
+    content: ""; border-left: 22px solid #fff; border-top: 13px solid transparent;
+    border-bottom: 13px solid transparent; margin-left: 5px;
+  }
+  .duration {
+    position: absolute; right: 10px; bottom: 10px; background: rgba(0,0,0,.8);
+    font-size: 12px; padding: 2px 6px; border-radius: 4px;
+  }
+  h1 { font-size: clamp(18px, 4vw, 22px); line-height: 1.3; margin-top: 12px; }
+  .meta { color: #aaa; font-size: 14px; margin-top: 6px; }
+  .warn { color: #aaa; font-size: 13px; text-align: center; }
+
+  /* ---------- Stage 2: the party ---------- */
+  #party { display: none; position: fixed; inset: 0; overflow: hidden; }
+  #party.on { display: block; animation: disco 0.5s steps(1) infinite; }
+  @keyframes disco {
+    0%   { background: #ff2d95; }
+    25%  { background: #2dd4ff; }
+    50%  { background: #ffe02d; }
+    75%  { background: #7a2dff; }
+  }
+  .ball {
+    position: absolute; top: -10px; left: 50%; width: 110px; height: 110px; margin-left: -55px;
+    border-radius: 50%; animation: spin 2s linear infinite;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 9px, rgba(0,0,0,.25) 9px 11px),
+      repeating-linear-gradient(90deg, transparent 0 9px, rgba(0,0,0,.25) 9px 11px),
+      radial-gradient(circle at 35% 35%, #fff, #bbb 40%, #666);
+    box-shadow: 0 0 60px 20px rgba(255,255,255,.6);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .beams {
+    position: absolute; inset: 0; pointer-events: none; mix-blend-mode: overlay;
+    background: conic-gradient(from 0deg at 50% 0%, transparent 0 10deg, #fff 12deg, transparent 14deg 40deg,
+      #fff 42deg, transparent 44deg 80deg, #fff 82deg, transparent 84deg 140deg, #fff 142deg, transparent 144deg 200deg,
+      #fff 202deg, transparent 204deg 260deg, #fff 262deg, transparent 264deg 320deg, #fff 322deg, transparent 324deg);
+    animation: sweep 3s ease-in-out infinite alternate; transform-origin: 50% 0;
+  }
+  @keyframes sweep { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+
+  .headline {
+    position: absolute; top: 18%; width: 100%; text-align: center; padding: 0 16px;
+    font-size: clamp(34px, 9vw, 92px); font-weight: 900; letter-spacing: -1px; color: #fff;
+    text-shadow: 4px 4px 0 #000, -2px -2px 0 #000; animation: wobble .5s ease-in-out infinite alternate;
+  }
+  @keyframes wobble { from { transform: rotate(-3deg) scale(1); } to { transform: rotate(3deg) scale(1.08); } }
+  .sub {
+    position: absolute; top: calc(18% + clamp(48px, 12vw, 120px)); width: 100%; text-align: center;
+    padding: 0 16px; font-size: clamp(16px, 3.5vw, 26px); font-weight: 700; color: #000;
+  }
+  .sub span { background: #fff; padding: 2px 10px; border-radius: 6px; }
+
+  .floor {
+    position: absolute; left: 0; right: 0; bottom: 70px; display: flex; justify-content: center;
+    align-items: flex-end; gap: clamp(4px, 3vw, 30px);
+  }
+  .dancer { width: clamp(70px, 16vw, 150px); }
+  .dancer svg { width: 100%; height: auto; overflow: visible; }
+  .dancer .body { animation: bob .25s ease-in-out infinite alternate; transform-origin: 50px 120px; }
+  .dancer .armL { transform-origin: 50px 52px; animation: armL .5s ease-in-out infinite alternate; }
+  .dancer .armR { transform-origin: 50px 52px; animation: armR .5s ease-in-out infinite alternate; }
+  .dancer .legL { transform-origin: 50px 95px; animation: legL .5s ease-in-out infinite alternate; }
+  .dancer .legR { transform-origin: 50px 95px; animation: legR .5s ease-in-out infinite alternate; }
+  .dancer:nth-child(2n) * { animation-delay: -.25s !important; }
+  .dancer:nth-child(3n) .armL { animation-name: armR; }
+  .dancer:nth-child(3n) .armR { animation-name: armL; }
+  @keyframes bob  { from { transform: translateY(0) rotate(-4deg); } to { transform: translateY(-10px) rotate(4deg); } }
+  @keyframes armL { from { transform: rotate(-20deg); } to { transform: rotate(-150deg); } }
+  @keyframes armR { from { transform: rotate(150deg); } to { transform: rotate(20deg); } }
+  @keyframes legL { from { transform: rotate(10deg); } to { transform: rotate(-30deg); } }
+  @keyframes legR { from { transform: rotate(30deg); } to { transform: rotate(-10deg); } }
+
+  .bar {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px; display: flex;
+    justify-content: center; gap: 10px; flex-wrap: wrap; background: rgba(0,0,0,.55);
+  }
+  .bar button {
+    font: inherit; font-weight: 700; font-size: 15px; border: 0; border-radius: 999px;
+    padding: 10px 18px; cursor: pointer; background: #fff; color: #000;
+  }
+  .bar button.alt { background: transparent; color: #fff; border: 2px solid #fff; }
+  #confetti { position: absolute; inset: 0; pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #party.on { animation: none; background: #7a2dff; }
+    .headline, .ball, .beams { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Stage 1 -->
+<main id="bait">
+  <div class="card">
+    <div class="player" id="player" role="button" tabindex="0" aria-label="Play video">
+      <div class="thumb"></div>
+      <div class="badge"><b>●</b> Private video, shared with you</div>
+      <div class="play"></div>
+      <div class="duration">0:47</div>
+    </div>
+    <h1>I genuinely can't believe someone caught this on camera 😳😳</h1>
+    <div class="meta">2.3M views · 4 hours ago</div>
+  </div>
+  <p class="warn">🔊 Turn your sound on for this one</p>
+</main>
+
+<!-- Stage 2 -->
+<section id="party" aria-live="polite">
+  <div class="beams"></div>
+  <div class="ball"></div>
+  <canvas id="confetti"></canvas>
+  <div class="headline">GOTCHA!! 🕺</div>
+  <div class="sub"><span>You've been dance-partied. There is no video.</span></div>
+  <div class="floor" id="floor"></div>
+  <div class="bar">
+    <button id="share">📤 Prank someone else</button>
+    <button id="mute" class="alt">🔇 Mute</button>
+  </div>
+</section>
+
+<script>
+// ---------- Dancers ----------
+const colors = ["#111", "#fff", "#111", "#fff", "#111"];
+const hats = ["🎩", "🧢", "👑", "🤠", "🎉"];
+const floor = document.getElementById("floor");
+colors.forEach((c, i) => {
+  const d = document.createElement("div");
+  d.className = "dancer";
+  d.innerHTML = `
+  <svg viewBox="0 0 100 160" aria-hidden="true">
+    <g class="body" stroke="${c}" stroke-width="7" stroke-linecap="round" fill="none">
+      <text x="50" y="18" font-size="26" text-anchor="middle" stroke="none">${hats[i]}</text>
+      <circle cx="50" cy="34" r="13" fill="${c}"/>
+      <line x1="50" y1="47" x2="50" y2="95"/>
+      <line class="armL" x1="50" y1="52" x2="50" y2="85"/>
+      <line class="armR" x1="50" y1="52" x2="50" y2="85"/>
+      <line class="legL" x1="50" y1="95" x2="50" y2="140"/>
+      <line class="legR" x1="50" y1="95" x2="50" y2="140"/>
+    </g>
+  </svg>`;
+  floor.appendChild(d);
+});
+
+// ---------- Confetti ----------
+const cv = document.getElementById("confetti"), cx = cv.getContext("2d");
+let bits = [];
+function sizeCanvas() { cv.width = innerWidth; cv.height = innerHeight; }
+addEventListener("resize", sizeCanvas);
+function burst(n = 160) {
+  for (let i = 0; i < n; i++) bits.push({
+    x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * .5,
+    vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 4, r: Math.random() * 6.28,
+    vr: (Math.random() - .5) * .3, w: 6 + Math.random() * 6, h: 10 + Math.random() * 8,
+    c: `hsl(${Math.random() * 360},95%,60%)`
+  });
+}
+function tick() {
+  cx.clearRect(0, 0, cv.width, cv.height);
+  bits = bits.filter(b => b.y < cv.height + 30);
+  for (const b of bits) {
+    b.x += b.vx; b.y += b.vy; b.r += b.vr;
+    cx.save(); cx.translate(b.x, b.y); cx.rotate(b.r);
+    cx.fillStyle = b.c; cx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h); cx.restore();
+  }
+  requestAnimationFrame(tick);
+}
+
+// ---------- Original party tune (Web Audio, no files) ----------
+let ac, master, muted = false, timer;
+const BPM = 124, step = 60 / BPM / 4; // 16th notes
+const note = n => 440 * Math.pow(2, (n - 69) / 12);
+// silly original melody (MIDI notes, null = rest), 32 steps
+const lead = [72,null,72,74,76,null,74,72, 79,null,79,null,77,76,74,null,
+              72,null,72,74,76,null,79,81, 79,77,76,74,72,null,null,null];
+const bassRoots = [48, 48, 53, 55]; // C C F G
+
+function blip(time, freq, dur, type, vol) {
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, time);
+  g.gain.exponentialRampToValueAtTime(0.001, time + dur);
+  o.connect(g).connect(master); o.start(time); o.stop(time + dur + .02);
+}
+function kick(t) {
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(40, t + .15);
+  g.gain.setValueAtTime(1, t); g.gain.exponentialRampToValueAtTime(0.001, t + .25);
+  o.connect(g).connect(master); o.start(t); o.stop(t + .3);
+}
+let noiseBuf;
+function noise(t, dur, vol, hp) {
+  const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+  s.buffer = noiseBuf; f.type = "highpass"; f.frequency.value = hp;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  s.connect(f).connect(g).connect(master); s.start(t); s.stop(t + dur);
+}
+function startMusic() {
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  master = ac.createGain(); master.gain.value = .35; master.connect(ac.destination);
+  noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+  const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+
+  let n = 0, next = ac.currentTime + .05;
+  timer = setInterval(() => {
+    while (next < ac.currentTime + .12) {
+      const s = n % 32, bar = Math.floor(n / 16) % 4;
+      if (s % 4 === 0) kick(next);
+      if (s % 8 === 4) noise(next, .18, .5, 1500);       // clap
+      if (s % 2 === 1) noise(next, .04, .25, 7000);      // hi-hat
+      if (s % 2 === 0) blip(next, note(bassRoots[bar] + (s % 4 === 2 ? 12 : 0)), step * 1.6, "square", .18);
+      if (lead[s] !== null) blip(next, note(lead[s]), step * 1.8, "sawtooth", .12);
+      if (s === 0) burst(60);
+      next += step; n++;
+    }
+  }, 25);
+}
+
+// ---------- Reveal ----------
+function reveal() {
+  document.getElementById("bait").style.display = "none";
+  document.getElementById("party").classList.add("on");
+  document.title = "GOTCHA!! 🕺💃";
+  sizeCanvas(); burst(250); tick();
+  try { startMusic(); } catch (e) {}
+}
+const player = document.getElementById("player");
+player.addEventListener("click", reveal);
+player.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") reveal(); });
+
+document.getElementById("mute").addEventListener("click", e => {
+  if (!master) return;
+  muted = !muted;
+  master.gain.value = muted ? 0 : .35;
+  e.target.textContent = muted ? "🔊 Unmute" : "🔇 Mute";
+});
+document.getElementById("share").addEventListener("click", async e => {
+  const url = location.href.split("#")[0];
+  try {
+    if (navigator.share) await navigator.share({ title: "You need to see this 😳", url });
+    else { await navigator.clipboard.writeText(url); e.target.textContent = "✅ Link copied!"; }
+  } catch (err) {}
+});
+</script>
+</body>
+</html>
