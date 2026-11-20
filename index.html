@@ -21,6 +21,7 @@
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .logo { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
   .logo span { color: var(--gold); }
+  .logo, footer { text-shadow: 0 2px 6px rgba(0,0,0,.8); }
   .chips { display: flex; gap: 8px; }
   .chip { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 14px; }
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 22px; }
@@ -93,9 +94,37 @@
   footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 18px; }
   footer a { color: var(--muted); }
   section + section { margin-top: 14px; }
+
+  /* ---------- dimensions ---------- */
+  body { background: var(--bg); }
+  #world { position: fixed; inset: 0; z-index: -1; background: var(--world, radial-gradient(ellipse at top, #1b2a4a, #0e1726 60%)); transition: background 0s; overflow: hidden; }
+  #world span { position: absolute; font-size: 34px; opacity: .22; animation: drift linear infinite; }
+  @keyframes drift { from { transform: translateY(110vh) rotate(0); } to { transform: translateY(-20vh) rotate(360deg); } }
+  .panel { background: rgba(22, 34, 58, .9); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .dimhud { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .dimname { font-weight: 800; font-size: 14px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ladder { display: flex; gap: 3px; }
+  .ladder i { width: 7px; height: 16px; border-radius: 2px; background: #0f1a2e; }
+  .ladder i.on { background: var(--muted); } .ladder i.me { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+  .dimflavor { font-size: 13px; color: var(--muted); margin: -6px 0 12px; }
+  .portal {
+    position: fixed; z-index: 30; width: 140vmax; height: 140vmax; border-radius: 50%; pointer-events: none;
+    transform: translate(-50%, -50%) scale(0); transition: transform .6s cubic-bezier(.5, 0, .2, 1);
+  }
+  .portal::before, .portal::after { content: ""; position: absolute; inset: 0; border-radius: 50%; }
+  .portal::before { background: var(--swirl); animation: spin .8s linear infinite; }
+  .portal::after { background: radial-gradient(circle, transparent 35%, rgba(0,0,0,.35) 60%, transparent 72%); }
+  .portal.up { --swirl: conic-gradient(#b8ff3d, #1fe0a8, #0e7d4f, #c6ff7a, #2cf5c0, #0e7d4f, #b8ff3d); filter: drop-shadow(0 0 40px #7dff6a); }
+  .portal.down { --swirl: conic-gradient(#ff4d4d, #6b1a1a, #ff8a3d, #3a0d0d, #ff4d4d, #6b1a1a, #ff4d4d); filter: drop-shadow(0 0 40px #ff3d3d); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .arrival { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 31; text-align: center; pointer-events: none;
+    font-weight: 900; font-size: clamp(22px, 6vw, 34px); text-shadow: 0 3px 12px #000; animation: arrive 1.1s ease-out forwards; width: 90%; }
+  .arrival small { display: block; font-size: 14px; font-weight: 700; opacity: .85; letter-spacing: 2px; }
+  @keyframes arrive { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.6); } 25%, 70% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -60%) scale(1.05); } }
 </style>
 </head>
 <body>
+<div id="world"></div>
 <canvas id="fx"></canvas>
 <div class="app">
   <header>
@@ -127,6 +156,8 @@
 
   <!-- GAME -->
   <section class="panel hidden" id="game">
+    <div class="dimhud"><div class="dimname" id="dimName"></div><div class="ladder" id="ladder"></div></div>
+    <div class="dimflavor" id="dimFlavor"></div>
     <div class="gtop"><div class="dots" id="dots"></div><div id="liveScore" style="font-weight:800">0</div><div class="combo" id="combo"></div></div>
     <div class="timer"><div id="timerBar"></div></div>
     <div id="goldenTag"></div>
@@ -140,6 +171,7 @@
     <p class="center muted" id="endTitle">Daily complete</p>
     <div class="big" id="finalScore">0</div>
     <div id="newBest"></div>
+    <p class="center" id="dimEnd" style="font-weight:800;margin-top:6px"></p>
     <div class="grid" id="emojiGrid"></div>
     <p class="center muted" id="endLine" style="margin-bottom:14px"></p>
     <div class="lvl">
@@ -180,7 +212,16 @@ const Q = {
  ["Which planet is closest to the Sun?","Mercury","Venus","Mars","Earth"],
  ["What is the fastest land animal?","Cheetah","Lion","Pronghorn","Greyhound"],
  ["Which country gave the Statue of Liberty to the USA?","France","United Kingdom","Spain","Italy"],
- ["What is frozen water called?","Ice","Steam","Dew","Fog"],
+ ["How many days are in a leap year?","366","365","364","367"],
+ ["What is the main ingredient in hummus?","Chickpeas","Lentils","Black beans","Peas"],
+ ["How many stripes are on the U.S. flag?","13","50","12","15"],
+ ["What is the name of the cowboy toy in Toy Story?","Woody","Buzz","Andy","Jessie"],
+ ["Which sport has a 'home run'?","Baseball","Football","Basketball","Hockey"],
+ ["How many zeros are in one million?","6","5","7","9"],
+ ["What is the tallest mountain in the world?","Mount Everest","K2","Kilimanjaro","Denali"],
+ ["How many legs does an insect have?","6","8","4","10"],
+ ["How many sides does a stop sign have?","8","6","7","10"],
+ ["How many states are in the USA?","50","48","52","51"],
 ],
 2: [
  ["What is the capital of Australia?","Canberra","Sydney","Melbourne","Perth"],
@@ -209,6 +250,28 @@ const Q = {
  ["What is the most abundant gas in Earth's atmosphere?","Nitrogen","Oxygen","Argon","Carbon dioxide"],
  ["What is the longest bone in the human body?","Femur","Tibia","Humerus","Fibula"],
  ["In what year was the first iPhone released?","2007","2005","2008","2010"],
+ ["What is the largest U.S. state by area?","Alaska","Texas","California","Montana"],
+ ["What does 'www' stand for in a web address?","World Wide Web","World Web Wide","Wide World Web","Web World Wide"],
+ ["How long is a regulation soccer match (without stoppage time)?","90 minutes","80 minutes","60 minutes","100 minutes"],
+ ["Which planet has the Great Red Spot?","Jupiter","Mars","Saturn","Neptune"],
+ ["In U.S. Monopoly, which property costs the most?","Boardwalk","Park Place","Marvin Gardens","Pennsylvania Avenue"],
+ ["How many teaspoons are in a tablespoon?","3","2","4","5"],
+ ["Which company makes the PlayStation?","Sony","Nintendo","Microsoft","Sega"],
+ ["How many points is a touchdown worth in American football?","6","7","3","5"],
+ ["Which vitamin does your body make from sunlight?","Vitamin D","Vitamin C","Vitamin A","Vitamin B12"],
+ ["How many cards are in a standard deck (no jokers)?","52","54","48","56"],
+ ["In what year did World War II end?","1945","1944","1946","1939"],
+ ["What is a baby kangaroo called?","Joey","Kit","Cub","Pup"],
+ ["In which country did the ancient Olympic Games begin?","Greece","Italy","Egypt","France"],
+ ["Which metal is a liquid at room temperature?","Mercury","Lead","Tin","Aluminum"],
+ ["How many players does a baseball team have on the field?","9","10","11","8"],
+ ["What is the smallest U.S. state by area?","Rhode Island","Delaware","Connecticut","Vermont"],
+ ["Who is credited with inventing the telephone?","Alexander Graham Bell","Thomas Edison","Nikola Tesla","Samuel Morse"],
+ ["What is the chemical symbol for sodium?","Na","So","Sd","Sn"],
+ ["How many presidents are carved into Mount Rushmore?","4","5","3","6"],
+ ["Which ocean is the Bermuda Triangle in?","Atlantic","Pacific","Indian","Arctic"],
+ ["What is the capital of Brazil?","Brasília","Rio de Janeiro","São Paulo","Salvador"],
+ ["How many squares are on a chessboard?","64","81","49","100"],
 ],
 3: [
  ["Which letter does not appear in any U.S. state name?","Q","Z","X","J"],
@@ -235,6 +298,15 @@ const Q = {
  ["What is the longest river in South America?","Amazon","Paraná","Orinoco","Magdalena"],
  ["What is the rarest of the 8 main blood types?","AB negative","O negative","B negative","A negative"],
  ["In which city is the Alhambra palace?","Granada","Seville","Córdoba","Toledo"],
+ ["What is the national animal of Scotland?","Unicorn","Lion","Stag","Golden eagle"],
+ ["How many teeth does an adult human usually have?","32","28","30","36"],
+ ["Which planet has the shortest day?","Jupiter","Saturn","Mercury","Earth"],
+ ["Which country has the most islands?","Sweden","Norway","Indonesia","Philippines"],
+ ["Which is the only U.S. state with a one-syllable name?","Maine","Utah","Iowa","Texas"],
+ ["What is the most common letter in English?","E","A","T","S"],
+ ["How many dots are on a standard six-sided die in total?","21","18","24","20"],
+ ["What is the largest country in Africa by area?","Algeria","Nigeria","Egypt","DR Congo"],
+ ["What color is a polar bear's skin?","Black","White","Pink","Gray"],
 ]};
 
 // ============ Helpers ============
@@ -258,7 +330,64 @@ const BADGES = [
   ["first","🎯","First round"],["perfect","💎","Perfect daily"],["combo5","🔥","5× combo"],["combo10","☄️","10× combo"],
   ["speed","⚡","Answer in <1.5s"],["streak3","📅","3-day streak"],["streak7","🗓️","7-day streak"],["golden","🌟","Hit a golden Q"],
   ["endless15","♾️","15 in Endless"],["lvl5","🧠","Reach Level 5"],["lvl10","👑","Reach Level 10"],["k1","💯","1,000+ daily"],
+  ["top","👾","Reach the top dimension"],["bottom","🪣","Hit rock bottom"],["comeback","🚀","Climb back 4 in a row"],["tourist","🧳","Visit 8 dimensions"],
 ];
+
+// ============ DIMENSIONS: worst (0) -> best (10) ============
+// [emoji, name, flavor, background]
+const DIMS = [
+  ["🪣","The Damp Dimension","Everything is slightly wet. Forever.","linear-gradient(#2b3328,#151a14)"],
+  ["🧦","Single Sock Reality","Every sock you own is a left sock.","linear-gradient(#3a3226,#1c1812)"],
+  ["🟫","Beige World","Color was outlawed in 1987.","linear-gradient(#5c5140,#2e281f)"],
+  ["📎","Eternal Monday","It is always 8:59 a.m. on a Monday.","linear-gradient(#3d4352,#1d2029)"],
+  ["🪑","The Waiting Room","Now serving number 4. You are 4,000,112.","linear-gradient(#2f3d4a,#161e25)"],
+  ["🌍","Prime Reality","Pretty normal. This is where you started.","radial-gradient(ellipse at top,#1b2a4a,#0e1726 60%)"],
+  ["🍕","Pizza Weather","Light pizza showers this afternoon.","radial-gradient(ellipse at top,#7a3410,#2a1206 70%)"],
+  ["🐕","Dogs With Jobs","Your dentist is a very good boy.","radial-gradient(ellipse at top,#1f6b5a,#0b2a24 70%)"],
+  ["🛹","Neon Skate Realm","Gravity is optional on weekends.","radial-gradient(ellipse at top,#c41d8f,#26104a 70%)"],
+  ["🎂","Cake Galaxy","Every planet is a different flavor.","radial-gradient(ellipse at top,#ff7eb6,#5a1d6e 70%)"],
+  ["👾","The Infinite Arcade","Everything is free and you're the high score.","conic-gradient(from 0deg at 50% 0%,#2cf5c0,#7a2dff,#ff2d95,#ffe02d,#2cf5c0)"],
+];
+const START_DIM = 5;
+function paintWorld(i) {
+  const [e, , , bg] = DIMS[i], w = $("world");
+  w.style.setProperty("--world", bg);
+  w.innerHTML = Array.from({ length: 12 }, (_, k) =>
+    `<span style="left:${(k * 83) % 100}%;animation-duration:${14 + (k * 7) % 12}s;animation-delay:-${(k * 3.7) % 14}s">${e}</span>`).join("");
+}
+function setDim(i) {
+  G.dim = i; G.seen.add(i); G.bestDim = Math.max(G.bestDim, i); G.lowDim = Math.min(G.lowDim, i);
+  const [e, n, f] = DIMS[i];
+  $("dimName").textContent = `${e} ${n}`; $("dimFlavor").textContent = f;
+  $("ladder").innerHTML = DIMS.map((_, k) => `<i class="${k === i ? "me" : k < i ? "on" : ""}"></i>`).join("");
+  paintWorld(i);
+  if (i === DIMS.length - 1) award("top");
+  if (i === 0) award("bottom");
+  if (G.seen.size >= 8) award("tourist");
+}
+
+// portal travel animation: grows from the answer, swaps dimension, shrinks away
+function travel(delta, from, then) {
+  const target = Math.max(0, Math.min(DIMS.length - 1, G.dim + delta));
+  const r = (from || $("qText")).getBoundingClientRect();
+  const p = document.createElement("div");
+  p.className = "portal " + (delta > 0 ? "up" : "down");
+  p.style.left = (r.left + r.width / 2) + "px"; p.style.top = (r.top + r.height / 2) + "px";
+  document.body.appendChild(p);
+  sfx.whoosh(delta > 0);
+  requestAnimationFrame(() => requestAnimationFrame(() => p.style.transform = "translate(-50%, -50%) scale(1)"));
+  setTimeout(() => {
+    const moved = target !== G.dim;
+    setDim(target); then();
+    const [e, n] = DIMS[target], a = document.createElement("div");
+    a.className = "arrival";
+    a.innerHTML = `<small>${!moved ? (delta > 0 ? "ALREADY AT THE TOP" : "CAN'T GO ANY LOWER") : delta > 0 ? "▲ UPGRADED TO" : "▼ DOWNGRADED TO"}</small>${e} ${n}`;
+    document.body.appendChild(a); setTimeout(() => a.remove(), 1100);
+    p.style.left = "50%"; p.style.top = "50%"; p.style.transition = "transform .5s cubic-bezier(.6,0,.8,.4)";
+    p.style.transform = "translate(-50%, -50%) scale(0)";
+    setTimeout(() => p.remove(), 550);
+  }, 650);
+}
 
 // ============ Sound ============
 let ac;
@@ -275,6 +404,16 @@ const sfx = {
   right: c => { const b = 523 * Math.pow(2, Math.min(c, 12) / 12); tone(b); tone(b * 1.5, .15, "triangle", .12, .07); },
   wrong: () => { tone(160, .25, "sawtooth", .12); tone(120, .3, "sawtooth", .1, .1); },
   tick: () => tone(900, .04, "square", .05),
+  whoosh: up => { try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const t = ac.currentTime, len = ac.sampleRate * 1.1, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+    s.buffer = buf; f.type = "bandpass"; f.Q.value = 6;
+    f.frequency.setValueAtTime(up ? 300 : 2400, t); f.frequency.exponentialRampToValueAtTime(up ? 3000 : 180, t + 1);
+    g.gain.setValueAtTime(.001, t); g.gain.exponentialRampToValueAtTime(.5, t + .3); g.gain.exponentialRampToValueAtTime(.001, t + 1.05);
+    s.connect(f).connect(g).connect(ac.destination); s.start(t); s.stop(t + 1.1);
+  } catch {} },
   fanfare: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, .25, "triangle", .15, i * .1)),
 };
 
@@ -351,7 +490,9 @@ function start(mode) {
   } else {
     qs = []; // filled as you go
   }
-  G = { mode, qs, i: 0, score: 0, combo: 0, maxCombo: 0, lives: 3, grid: [], correct: 0, used: new Set() };
+  G = { mode, qs, i: 0, score: 0, combo: 0, maxCombo: 0, lives: 3, grid: [], correct: 0, used: new Set(),
+        seen: new Set(), bestDim: START_DIM, lowDim: START_DIM, climb: 0 };
+  setDim(START_DIM);
   show("game"); next();
 }
 
@@ -427,11 +568,15 @@ function pick(btn) {
   }
   $("liveScore").textContent = G.score;
 
+  // climbing back up after falling below where you started
+  G.climb = ok ? G.climb + 1 : 0;
+  if (G.climb >= 4 && G.lowDim < START_DIM) award("comeback");
+
   setTimeout(() => {
     G.i++;
     const done = G.mode === "daily" ? G.i >= G.qs.length : G.lives <= 0;
-    done ? finish() : next();
-  }, ok ? 650 : 1400);
+    travel(ok ? (cur.golden ? 2 : 1) : -1, btn, () => done ? finish() : next());
+  }, ok ? 450 : 1200);
 }
 
 function finish() {
@@ -463,10 +608,13 @@ function finish() {
   $("endTitle").textContent = daily ? `Daily #${d} complete` : `Endless · ${G.correct} correct`;
   // count-up score
   const fs = $("finalScore"), target = G.score, t0 = performance.now();
-  (function up(now) { const p = Math.min(1, Math.max(0, (now - t0) / 900)); fs.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(up); })(t0);
+  setTimeout(() => fs.textContent = target, 1000);
+  (function up() { const p = Math.min(1, Math.max(0, (performance.now() - t0) / 900)); fs.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(up); })(t0);
   $("newBest").innerHTML = newBest ? `<div class="newbest">★ NEW PERSONAL BEST ★</div>` : "";
   if (newBest) { confetti(150); sfx.fanfare(); }
   $("emojiGrid").textContent = G.grid.join("");
+  const [de, dn] = DIMS[G.dim];
+  $("dimEnd").innerHTML = `You ended up in ${de} ${dn}<br><span class="muted" style="font-weight:600;font-size:14px">Highest: ${DIMS[G.bestDim][0]} ${DIMS[G.bestDim][1]}</span>`;
   $("endLine").innerHTML = daily
     ? `${G.correct}/10 correct · best combo 🔥${G.maxCombo} · streak <b>🔥 ${P.streak} day${P.streak === 1 ? "" : "s"}</b>`
     : `Best combo 🔥${G.maxCombo} · your record: ${P.endless} correct`;
@@ -495,8 +643,8 @@ function finish() {
   $("eHome").onclick = renderHome;
   $("eShare").onclick = async () => {
     const text = daily
-      ? `Long Shot #${d} 🎯 ${G.score}\n${G.grid.join("")}\n🔥${P.streak} day streak\n${location.href.split("#")[0]}`
-      : `Long Shot Endless ♾️ ${G.correct} correct, ${G.score} pts. Beat me:\n${location.href.split("#")[0]}`;
+      ? `Long Shot #${d} 🎯 ${G.score}\n${G.grid.join("")}\nEnded in ${de} ${dn}\n🔥${P.streak} day streak\n${location.href.split("#")[0]}`
+      : `Long Shot Endless ♾️ ${G.correct} correct, ${G.score} pts. Ended in ${de} ${dn}. Beat me:\n${location.href.split("#")[0]}`;
     try { if (navigator.share) await navigator.share({ text }); else { await navigator.clipboard.writeText(text); $("eShare").textContent = "✅ Copied!"; } } catch {}
   };
   $("nextLine").classList.toggle("hidden", !daily);
