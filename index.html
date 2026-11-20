@@ -100,6 +100,36 @@
   #world { position: fixed; inset: 0; z-index: -1; background: var(--world, radial-gradient(ellipse at top, #1b2a4a, #0e1726 60%)); transition: background 0s; overflow: hidden; }
   #world span { position: absolute; font-size: 34px; opacity: .22; animation: drift linear infinite; }
   @keyframes drift { from { transform: translateY(110vh) rotate(0); } to { transform: translateY(-20vh) rotate(360deg); } }
+  #world > * { position: absolute; }
+  /* photos: slow drift-zoom so space feels alive */
+  .photo-bg { inset: -6%; background-size: cover; background-position: center; animation: kenburns 40s ease-in-out infinite alternate; }
+  @keyframes kenburns { from { transform: scale(1) translate(0, 0); } to { transform: scale(1.12) translate(-2%, 1.5%); } }
+  .vignette { inset: 0; background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55)); }
+  /* damp: rain + puddles */
+  .drop { top: -10%; width: 2px; height: 70px; background: linear-gradient(transparent, rgba(170,200,170,.5)); animation: fall linear infinite; }
+  @keyframes fall { to { transform: translateY(125vh); } }
+  .puddle { bottom: 4%; width: 140px; height: 26px; border-radius: 50%; border: 2px solid rgba(170,200,170,.35); animation: ripple 2.4s ease-out infinite; }
+  @keyframes ripple { from { transform: scale(.3); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+  /* socks on clotheslines */
+  .line { left: 0; right: 0; height: 2px; background: #8a7a60; }
+  .line span { position: absolute; top: -4px; font-size: 40px; transform-origin: 50% 0; animation: sway 2.6s ease-in-out infinite alternate; }
+  @keyframes sway { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+  /* beige */
+  .blob { border-radius: 18px; background: #c9b896; box-shadow: 0 8px 0 #a8976f; opacity: .55; animation: bob 9s ease-in-out infinite alternate; }
+  @keyframes bob { to { transform: translate(30px, -24px) rotate(6deg); } }
+  .beige-sign { left: 50%; bottom: 8%; transform: translateX(-50%); background: #d8c9a8; color: #a8976f; font-weight: 900; padding: 10px 18px; border-radius: 8px; letter-spacing: 2px; white-space: nowrap; }
+  /* monday clocks stuck at 8:59 */
+  .clock { width: clamp(90px, 22vw, 170px); opacity: .7; }
+  .clock .sec { transform-origin: 50px 50px; animation: tick 60s steps(60) infinite; }
+  @keyframes tick { to { transform: rotate(360deg); } }
+  /* waiting room */
+  .serving { bottom: 34%; left: 50%; transform: translateX(-50%); font-family: ui-monospace, monospace; color: #ff5040; background: #110805;
+    padding: 10px 18px; border-radius: 8px; font-size: clamp(16px, 4vw, 24px); letter-spacing: 3px; text-shadow: 0 0 10px #ff2a1a; white-space: nowrap; animation: flicker 4s infinite; }
+  .serving b { color: #ff8070; }
+  @keyframes flicker { 0%, 92%, 96%, 100% { opacity: 1; } 94% { opacity: .2; } }
+  .ticket { bottom: 22%; left: 50%; transform: translateX(-50%) rotate(-4deg); background: #f3efe2; color: #333; font-family: ui-monospace, monospace;
+    padding: 8px 14px; font-weight: 700; opacity: .8; white-space: nowrap; }
+  .chairs { bottom: 2%; left: 0; right: 0; text-align: center; font-size: clamp(34px, 8vw, 60px); white-space: nowrap; overflow: hidden; opacity: .6; }
   .panel { background: rgba(22, 34, 58, .9); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
   .dimhud { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .dimname { font-weight: 800; font-size: 14px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -182,7 +212,10 @@
     <p class="center muted" style="margin-top:16px" id="nextLine">Next daily in <span class="countdown" id="countdown">--:--:--</span></p>
   </section>
 
-  <footer><a href="prank/">psst… there's also a totally normal video</a></footer>
+  <footer>
+    Space photos courtesy of NASA (public domain)<br>
+    <a href="prank/">psst… there's also a totally normal video</a>
+  </footer>
 </div>
 
 <script>
@@ -330,30 +363,57 @@ const BADGES = [
   ["first","🎯","First round"],["perfect","💎","Perfect daily"],["combo5","🔥","5× combo"],["combo10","☄️","10× combo"],
   ["speed","⚡","Answer in <1.5s"],["streak3","📅","3-day streak"],["streak7","🗓️","7-day streak"],["golden","🌟","Hit a golden Q"],
   ["endless15","♾️","15 in Endless"],["lvl5","🧠","Reach Level 5"],["lvl10","👑","Reach Level 10"],["k1","💯","1,000+ daily"],
-  ["top","👾","Reach the top dimension"],["bottom","🪣","Hit rock bottom"],["comeback","🚀","Climb back 4 in a row"],["tourist","🧳","Visit 8 dimensions"],
+  ["top","👑","Reach the top dimension"],["bottom","🪣","Hit rock bottom"],["comeback","🚀","Climb back 4 in a row"],["tourist","🧳","Visit 8 dimensions"],
 ];
 
 // ============ DIMENSIONS: worst (0) -> best (10) ============
-// [emoji, name, flavor, background]
+// [emoji, name, flavor, background, scene-or-image]
 const DIMS = [
-  ["🪣","The Damp Dimension","Everything is slightly wet. Forever.","linear-gradient(#2b3328,#151a14)"],
-  ["🧦","Single Sock Reality","Every sock you own is a left sock.","linear-gradient(#3a3226,#1c1812)"],
-  ["🟫","Beige World","Color was outlawed in 1987.","linear-gradient(#5c5140,#2e281f)"],
-  ["📎","Eternal Monday","It is always 8:59 a.m. on a Monday.","linear-gradient(#3d4352,#1d2029)"],
-  ["🪑","The Waiting Room","Now serving number 4. You are 4,000,112.","linear-gradient(#2f3d4a,#161e25)"],
-  ["🌍","Prime Reality","Pretty normal. This is where you started.","radial-gradient(ellipse at top,#1b2a4a,#0e1726 60%)"],
-  ["🍕","Pizza Weather","Light pizza showers this afternoon.","radial-gradient(ellipse at top,#7a3410,#2a1206 70%)"],
-  ["🐕","Dogs With Jobs","Your dentist is a very good boy.","radial-gradient(ellipse at top,#1f6b5a,#0b2a24 70%)"],
-  ["🛹","Neon Skate Realm","Gravity is optional on weekends.","radial-gradient(ellipse at top,#c41d8f,#26104a 70%)"],
-  ["🎂","Cake Galaxy","Every planet is a different flavor.","radial-gradient(ellipse at top,#ff7eb6,#5a1d6e 70%)"],
-  ["👾","The Infinite Arcade","Everything is free and you're the high score.","conic-gradient(from 0deg at 50% 0%,#2cf5c0,#7a2dff,#ff2d95,#ffe02d,#2cf5c0)"],
+  ["🪣","The Damp Dimension","Everything is slightly wet. Forever.","linear-gradient(#2b3328,#151a14)","rain"],
+  ["🧦","Single Sock Reality","Every sock you own is a left sock.","linear-gradient(#3a3226,#1c1812)","socks"],
+  ["🟫","Beige World","Color was outlawed in 1987.","linear-gradient(#6b5f4b,#3a3327)","beige"],
+  ["📎","Eternal Monday","It is always 8:59 a.m. on a Monday.","linear-gradient(#3d4352,#1d2029)","monday"],
+  ["🪑","The Waiting Room","Now serving number 4. You are 4,000,112.","linear-gradient(#2f3d4a,#161e25)","waiting"],
+  ["🌍","Prime Reality","Home, seen from orbit. This is where you started.","#000","img/earth.jpg"],
+  ["🪐","Ring Road","Traffic is light. Every road is a ring road.","#000","img/saturn.jpg"],
+  ["🔥","The Vortex","A whole galaxy, seen in infrared. Spicy.","#1a0505","img/whirlpool.jpg"],
+  ["💫","The Glow Ring","A dying star blowing the universe's best smoke ring.","#000","img/ring.jpg"],
+  ["🌌","The Deep Field","Every dot is an entire galaxy. Wave hi.","#000","img/deepfield.jpg"],
+  ["👑","The Cosmic Cliffs","Cliffs of gas lit by newborn stars. You made it to the top.","#000","img/cliffs.jpg"],
 ];
 const START_DIM = 5;
+// preload photos so portals never land on a blank screen
+DIMS.forEach(d => { if (d[4].startsWith("img/")) new Image().src = d[4]; });
+
+const R = n => Array.from({ length: n }, (_, k) => k);
+const SCENES = {
+  rain: () => R(60).map(k => `<i class="drop" style="left:${(k * 37) % 100}%;animation-duration:${.5 + (k % 7) * .09}s;animation-delay:-${(k * .13) % 1}s"></i>`).join("")
+    + R(6).map(k => `<i class="puddle" style="left:${8 + k * 16}%;animation-delay:-${k * .4}s"></i>`).join(""),
+  socks: () => R(3).map(r => `<div class="line" style="top:${14 + r * 28}%">` +
+      R(7).map(k => `<span style="left:${4 + k * 14 + (r % 2) * 6}%;animation-delay:-${(k + r) * .37}s">🧦</span>`).join("") + `</div>`).join(""),
+  beige: () => R(9).map(k => `<i class="blob" style="left:${(k * 29) % 90}%;top:${(k * 41) % 85}%;width:${90 + (k * 37) % 120}px;height:${70 + (k * 53) % 90}px;animation-delay:-${k * 2.3}s"></i>`).join("")
+    + `<div class="beige-sign">THIS SIGN IS BEIGE</div>`,
+  monday: () => R(3).map(k => `<svg class="clock" viewBox="0 0 100 100" style="left:${8 + k * 32}%;top:${12 + (k % 2) * 46}%">
+      <circle cx="50" cy="50" r="46" fill="#e8e4d8" stroke="#555" stroke-width="5"/>
+      ${R(12).map(h => `<line x1="50" y1="8" x2="50" y2="15" stroke="#555" stroke-width="3" transform="rotate(${h * 30} 50 50)"/>`).join("")}
+      <line x1="50" y1="50" x2="50" y2="26" stroke="#222" stroke-width="5" stroke-linecap="round" transform="rotate(269 50 50)"/>
+      <line x1="50" y1="50" x2="50" y2="14" stroke="#222" stroke-width="3" stroke-linecap="round" transform="rotate(354 50 50)"/>
+      <line class="sec" x1="50" y1="56" x2="50" y2="12" stroke="#d33" stroke-width="1.5"/>
+      <text x="50" y="72" font-size="9" text-anchor="middle" fill="#888" font-family="sans-serif">MON</text></svg>`).join(""),
+  waiting: () => `<div class="serving">NOW SERVING <b>0004</b></div><div class="ticket">YOUR NUMBER: 4,000,112</div>
+    <div class="chairs">${"🪑".repeat(9)}</div>`,
+};
+
 function paintWorld(i) {
-  const [e, , , bg] = DIMS[i], w = $("world");
+  const [e, , , bg, extra] = DIMS[i], w = $("world");
   w.style.setProperty("--world", bg);
-  w.innerHTML = Array.from({ length: 12 }, (_, k) =>
-    `<span style="left:${(k * 83) % 100}%;animation-duration:${14 + (k * 7) % 12}s;animation-delay:-${(k * 3.7) % 14}s">${e}</span>`).join("");
+  if (extra.startsWith("img/")) {
+    w.className = "photo";
+    w.innerHTML = `<div class="photo-bg" style="background-image:url(${extra})"></div><div class="vignette"></div>`;
+  } else {
+    w.className = "scene " + extra;
+    w.innerHTML = SCENES[extra]();
+  }
 }
 function setDim(i) {
   G.dim = i; G.seen.add(i); G.bestDim = Math.max(G.bestDim, i); G.lowDim = Math.min(G.lowDim, i);
@@ -663,6 +723,7 @@ addEventListener("keydown", e => {
   const b = $("opts").children[+e.key - 1]; if (b && !b.disabled) pick(b);
 });
 
+paintWorld(START_DIM);
 renderHome();
 </script>
 </body>
